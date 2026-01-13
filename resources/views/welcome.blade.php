@@ -117,7 +117,35 @@
                             </a>
                         </li>
                     </ul>
+
+                    <br><br>
+                    @php
+                       $users = \App\Models\User::all() ?? [];
+                    @endphp
+                            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($users as $usuario)
+                        <tr>
+                            <td>{{ $usuario->id }}|</td>
+                            <td>{{ $usuario->name }}|</td>
+                            <td>{{ $usuario->email }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="text-align: center;">No hay usuarios registrados en este tenant.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
                 </div>
+                
                 <div class="bg-[#fff2f2] dark:bg-[#1D0002] relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg aspect-[335/376] lg:aspect-auto w-full lg:w-[438px] shrink-0 overflow-hidden">
                     {{-- Laravel Logo --}}
                     <svg class="w-full text-[#F53003] dark:text-[#F61500] transition-all translate-y-0 opacity-100 max-w-none duration-750 starting:opacity-0 starting:translate-y-6" viewBox="0 0 438 104" fill="none" xmlns="http://www.w3.org/2000/svg">

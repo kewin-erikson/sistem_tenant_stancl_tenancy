@@ -446,31 +446,6 @@ class CreateTenantDatabase extends CreateDatabase
                 
                 return true;
             }
-            } else {
-            // ✅ CASO LOCAL: Configurar tenant_template con las credenciales locales
-            Log::info("📍 Usando servidor LOCAL (sin nodo externo)");
-            
-            // Obtener la configuración de la conexión central
-            $centralConnection = config('tenancy.database.central_connection', 'mysql');
-            $centralConfig = config("database.connections.{$centralConnection}");
-            
-            // Configurar tenant_template con las credenciales locales
-            Config::set('database.connections.tenant_template', [
-                'driver' => $centralConfig['driver'] ?? 'mysql',
-                'host' => $centralConfig['host'] ?? '127.0.0.1',
-                'port' => $centralConfig['port'] ?? '3306',
-                'database' => 'mysql', // DB temporal para conectar
-                'username' => $centralConfig['username'] ?? 'root',
-                'password' => $centralConfig['password'] ?? '',
-                'charset' => $centralConfig['charset'] ?? 'utf8mb4',
-                'collation' => $centralConfig['collation'] ?? 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'strict' => true,
-            ]);
-
-            DB::purge('tenant_template');
-            
-            Log::info("⚙️ Configuración tenant_template establecida desde conexión central: {$centralConnection}");
         }
 
         // Proceder con creación normal
@@ -702,6 +677,8 @@ ver a detalle que hace el componete
 
 para  probar el componente  debes copiar este archivo y crear las carpetas si no existe  resources\views\components\layouts\app.blade.php
 ### 💻 6. Configuracion rutas
+tener en cuenta que las rutas  siempre le dara prioridad a las rutas tennat entonces si esta repetida la ruta siempre ira primero  a la del tenant
+[text](https://tenancyforlaravel.com/docs/v3/routes)
 
 en web.php
 
@@ -730,6 +707,11 @@ y en esta parte
             ],
 ```
 ## 🔍 Diagrama de Flujo: Cómo Funciona la Conexión Externa
+
+### 7 .Configurador  Livewire 
+[text](https://tenancyforlaravel.com/docs/v3/integrations/livewire/#livewire)
+no olvides el llamado  
+use Livewire\Livewire;
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -896,20 +878,128 @@ Este componente es el "policía" que vigila que no se exceda el user_limit guard
     php artisan make:observer UserObserver --model=User
 ```
 ```php
-   public function creating(User $user): void
+    public function creating(User $user): void
     {
-        // 1. Obtenemos el límite configurado para ESTE tenant actual
-        // La función tenant() accede a los datos de la sesión actual del cliente
-        $limit = tenant('user_limit'); 
+        // Solo validar si estamos en contexto de tenant
+        if (!function_exists('tenancy') || !tenancy()->initialized) {
+            return;
+        }
+
+        // Obtener el tenant actual
+        $tenant = tenancy()->tenant;
         
-        // 2. Contamos cuántos usuarios existen ya en esta base de datos
+        // Obtener el límite configurado
+        $limit = $tenant->user_limit ?? 10;
+        
+        // Contar cuántos usuarios existen ya
         $currentCount = User::count();
 
-        // 3. Si ya llegó o pasó el límite, bloqueamos la creación
+        Log::info("🔍 Validando límite de usuarios", [
+            'tenant' => $tenant->id,
+            'limite' => $limit,
+            'actuales' => $currentCount,
+        ]);
+
+        // Si ya llegó o pasó el límite, bloqueamos la creación
         if ($currentCount >= $limit) {
-            // Esto detendrá el proceso y mostrará error
-            throw new Exception("¡Alto ahí! Tu plan solo permite {$limit} usuarios.");
+            Log::warning("❌ Límite de usuarios alcanzado", [
+                'tenant' => $tenant->id,
+                'limite' => $limit,
+            ]);
+
+            // Lanzar excepción con mensaje amigable
+            throw new \Illuminate\Validation\ValidationException(
+                validator: \Illuminate\Support\Facades\Validator::make([], []),
+                response: null,
+                errorBag: 'default'
+            );
+        }
+
+        Log::info("✅ Límite de usuarios OK - Procediendo a crear usuario");
+    }
+
+    otras funciones que puedes agregar 
+
+    public function created(User $user): void
+    {
+        if (function_exists('tenancy') && tenancy()->initialized) {
+            $tenant = tenancy()->tenant;
+            $remaining = $tenant->user_limit - User::count();
+            
+            Log::info("✅ Usuario creado exitosamente", [
+                'tenant' => $tenant->id,
+                'email' => $user->email,
+                'usuarios_totales' => User::count(),
+                'usuarios_restantes' => $remaining,
+            ]);
         }
     }
 
+    public function deleted(User $user): void
+    {
+        if (function_exists('tenancy') && tenancy()->initialized) {
+            $tenant = tenancy()->tenant;
+            Log::info("🗑️ Usuario eliminado", [
+                'tenant' => $tenant->id,
+                'email' => $user->email,
+            ]);
+        }
+    }
+
+
 ```
+    no olvidar hacer los llmados  de 
+```php
+    use App\Models\User;
+    use Exception; // ← AGREGAR ESTA LÍNEA
+    use Illuminate\Support\Facades\Log; // ← AGREGAR ESTA LÍNEA TAMBIÉN
+```
+en el  modelo de  user
+
+agregar esto 
+```php
+   public function bootEvents()
+    {
+        // ... otros eventos ...
+
+        $this->events()->listen(BootstrapTenancy::class, function (BootstrapTenancy $event) {
+            // AQUÍ activamos el observer solo cuando un tenant ha cargado
+            User::observe(UserObserver::class);
+        });
+        
+        // ...
+    }
+
+```
+    en el modelo  tenant 
+    agregar esto 
+
+    ```php
+      public function hasReachedUserLimit(): bool
+        {
+            return $this->run(function () {
+                $userCount = \App\Models\User::count();
+                return $userCount >= $this->user_limit;
+            });
+        }
+
+        public function getRemainingUsersAttribute(): int
+        {
+            return $this->run(function () {
+                $userCount = \App\Models\User::count();
+                return max(0, $this->user_limit - $userCount);
+            });
+        }
+    ```
+    debes agregar  en  AppServiceProvider
+
+    esto 
+
+    ```php
+        public function boot(): void
+        {
+            //
+            User::observe(UserObserver::class);
+        }
+    ```
+    

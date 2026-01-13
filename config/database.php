@@ -95,7 +95,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'sslmode' => 'prefer',
         ],
 
         'sqlsrv' => [
@@ -113,37 +113,32 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-        'connections' => [
-    // ... otras conexiones existentes
-
-        // 1. PLANTILLA: Define la estructura base para conexiones remotas
+   // 1. ESTA ES LA PLANTILLA (El molde)
+        // Tenancy la leerá SOLO para saber que el driver es 'mysql' y copiar la config básica.
         'tenant_template' => [
-            'driver' => 'mysql',
-            'host' => '127.0.0.1', 
-            'port' => '3306',
-            'database' => 'mysql', // DB temporal para conexión inicial
-            'username' => 'root',
-            'password' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-        ],
-
-        // 2. CONEXIÓN DINÁMICA: Aquí se inyectan las credenciales en tiempo real
-        'tenant' => [
-            'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'database' => null,
-            'username' => 'root',
-            'password' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-        ],
+        'driver' => 'mysql',
+        'host' => '127.0.0.1',
+        'port' => '3306',
+        'database' => 'mysql',
+        'username' => 'root',
+        'password' => '',
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+        'strict' => true,
     ],
 
+    'tenant' => [
+        'driver' => 'mysql',
+        'host' => '127.0.0.1',
+        'database' => null,
+        'username' => 'root',
+        'password' => '',
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+        'strict' => true,
+    ],
     ],
 
     /*

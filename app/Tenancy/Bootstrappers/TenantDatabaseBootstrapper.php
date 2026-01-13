@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Tenancy\Bootstrappers;
 
 use Stancl\Tenancy\Contracts\TenancyBootstrapper;

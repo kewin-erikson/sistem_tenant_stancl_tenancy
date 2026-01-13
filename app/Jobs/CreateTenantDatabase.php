@@ -30,7 +30,7 @@ class CreateTenantDatabase extends CreateDatabase
                 'driver' => 'mysql',
                 'host' => $node->host,
                 'port' => $node->port,
-                'database' => 'mysql', // DB temporal para conectar
+                'database' => 'information_schema', // DB temporal para conectar
                 'username' => $node->username,
                 'password' => $node->password,
                 'charset' => 'utf8mb4',
@@ -51,31 +51,6 @@ class CreateTenantDatabase extends CreateDatabase
                 
                 return true;
             }
-            } else {
-            // ✅ CASO LOCAL: Configurar tenant_template con las credenciales locales
-            Log::info("📍 Usando servidor LOCAL (sin nodo externo)");
-            
-            // Obtener la configuración de la conexión central
-            $centralConnection = config('tenancy.database.central_connection', 'mysql');
-            $centralConfig = config("database.connections.{$centralConnection}");
-            
-            // Configurar tenant_template con las credenciales locales
-            Config::set('database.connections.tenant_template', [
-                'driver' => $centralConfig['driver'] ?? 'mysql',
-                'host' => $centralConfig['host'] ?? '127.0.0.1',
-                'port' => $centralConfig['port'] ?? '3306',
-                'database' => 'mysql', // DB temporal para conectar
-                'username' => $centralConfig['username'] ?? 'root',
-                'password' => $centralConfig['password'] ?? '',
-                'charset' => $centralConfig['charset'] ?? 'utf8mb4',
-                'collation' => $centralConfig['collation'] ?? 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'strict' => true,
-            ]);
-
-            DB::purge('tenant_template');
-            
-            Log::info("⚙️ Configuración tenant_template establecida desde conexión central: {$centralConnection}");
         }
 
         // Proceder con creación normal

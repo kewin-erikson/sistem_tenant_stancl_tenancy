@@ -33,6 +33,18 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+       public function bootEvents()
+    {
+        // ... otros eventos ...
+
+        $this->events()->listen(BootstrapTenancy::class, function (BootstrapTenancy $event) {
+            // AQUÍ activamos el observer solo cuando un tenant ha cargado
+            User::observe(UserObserver::class);
+        });
+        
+        // ...
+    }
+
     /**
      * Get the attributes that should be cast.
      *

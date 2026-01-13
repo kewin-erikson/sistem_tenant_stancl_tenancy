@@ -19,6 +19,9 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
+        ...array_filter(
+            explode(',', env('CENTRAL_DOMAINS', ''))
+        ),
     ],
 
     /**
@@ -28,8 +31,8 @@ return [
      * To configure their behavior, see the config keys below.
      */
     'bootstrappers' => [
+        // Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper::class,
         \App\Tenancy\Bootstrappers\TenantDatabaseBootstrapper::class,
-        
         Stancl\Tenancy\Bootstrappers\CacheTenancyBootstrapper::class,
         Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper::class,
         Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper::class,
@@ -41,6 +44,9 @@ return [
      */
     'database' => [
         'central_connection' => env('DB_CONNECTION', 'mysql'),
+
+        // Asegúrate de que esto esté así para permitir conexiones remotas
+        'tenant_key_column' => 'tenant_id', // O la que uses por defecto
 
         /**
          * Connection used as a "template" for the dynamically created tenant database connection.
@@ -59,9 +65,9 @@ return [
          * TenantDatabaseManagers are classes that handle the creation & deletion of tenant databases.
          */
         'managers' => [
-            'sqlite' => Stancl\Tenancy\TenantDatabaseManagers\SQLiteDatabaseManager::class,
+            // 'sqlite' => Stancl\Tenancy\TenantDatabaseManagers\SQLiteDatabaseManager::class,
             'mysql' => Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager::class,
-            'pgsql' => Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager::class,
+            // 'pgsql' => Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager::class,
 
         /**
          * Use this database manager for MySQL to have a DB user created for each tenant database.
@@ -216,6 +222,16 @@ return [
             'deleted' => [
                 \Stancl\Tenancy\Jobs\DeleteDatabase::class,
             ],
+        ],
+            'domain' => [
+            'created' => [],
+            'updated' => [],
+            'saving' => [],
+            'saved' => [],
+            'restoring' => [],
+            'restored' => [],
+            'deleting' => [],
+            'deleted' => [],
         ],
     ],
 ];
