@@ -70,7 +70,7 @@
                 <div class="flex">
                     <input wire:model="t_domain" type="text" class="border border-gray-300 w-full p-2 rounded-l" placeholder="nike">
                     <span class="inline-flex items-center px-3 rounded-r border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                        .lvh.me
+                        .{{ env('CENTRAL_DOMAIN') }}
                     </span>
                 </div>
                 @error('t_domain') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror

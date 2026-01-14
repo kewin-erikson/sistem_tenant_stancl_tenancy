@@ -98,7 +98,7 @@ class TenantManager extends Component
 
         // Crear dominio
         $tenant->domains()->create([
-            'domain' => $this->t_domain . '.lvh.me'
+            'domain' => $this->t_domain . '.'.env('CENTRAL_DOMAIN')
         ]);
 
         // Preparar mensaje de éxito
