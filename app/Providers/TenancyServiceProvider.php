@@ -130,7 +130,7 @@ class TenancyServiceProvider extends ServiceProvider
     protected function configureLivewire()
     {
         Livewire::setUpdateRoute(function ($handle) {
-            return Route::post('public/livewire/update', $handle)
+            return Route::post('/public/livewire/update', $handle)
             ->middleware(
                 'web',
                 'universal',
