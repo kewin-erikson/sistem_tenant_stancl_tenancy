@@ -130,11 +130,11 @@ class TenancyServiceProvider extends ServiceProvider
     protected function configureLivewire()
     {
         Livewire::setUpdateRoute(function ($handle) {
-            return Route::post('/public/livewire/update', $handle)
+            return Route::post('/livewire/update', $handle)
             ->middleware(
                 'web',
                 'universal',
-                // \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class, // or whatever tenancy middleware you use
+                \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class, // or whatever tenancy middleware you use
             );
             FilePreviewController::$middleware = ['web', 'universal', InitializeTenancyByDomain::class];
     });
