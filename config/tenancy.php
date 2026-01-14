@@ -19,6 +19,7 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
+        'www.apoloautos.com',
         ...array_filter(
             explode(',', env('CENTRAL_DOMAINS', ''))
         ),

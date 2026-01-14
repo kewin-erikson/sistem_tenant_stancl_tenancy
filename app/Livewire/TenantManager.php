@@ -108,7 +108,7 @@ class TenantManager extends Component
             session()->flash('credentials', [
                 'email' => 'admin@' . $tenant->id . '.com',
                 'password' => $this->t_admin_password,
-                'url' => 'http://' . $this->t_domain . '.lvh.me:8000'
+                'url' => 'http://' . $this->t_domain . '.'.env('CENTRAL_DOMAIN')
             ]);
         }
 
