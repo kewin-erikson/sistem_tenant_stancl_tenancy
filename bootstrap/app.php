@@ -3,12 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-// use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-// use Illuminate\Session\Middleware\StartSession;
-// use Illuminate\View\Middleware\ShareErrorsFromSession;
-// use Illuminate\Routing\Middleware\SubstituteBindings;
-// use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-// use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,15 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->group('universal', []);
-        //  $middleware->group('web', [
-        //     InitializeTenancyByDomain::class,
-        //     PreventAccessFromCentralDomains::class,
-
-        //     StartSession::class,
-        //     ShareErrorsFromSession::class,
-        //     VerifyCsrfToken::class,
-        //     SubstituteBindings::class,
-        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

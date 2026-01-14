@@ -14,6 +14,7 @@ use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
 use App\Jobs\SeedTenantDatabase; // <--- Importa tu nuevo Job
+use Livewire\Livewire;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -82,8 +83,10 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bootEvents();
-        $this->mapRoutes();
+        // $this->mapRoutes();
         $this->makeTenancyMiddlewareHighestPriority();
+        // ⭐ Configurar Livewire para contexto central también
+        $this->configureLivewire();
     }
 
     protected function bootEvents()
@@ -122,5 +125,18 @@ class TenancyServiceProvider extends ServiceProvider
         foreach (array_reverse($tenancyMiddleware) as $middleware) {
             $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
         }
+    }
+
+    protected function configureLivewire()
+    {
+        Livewire::setUpdateRoute(function ($handle) {
+            return Route::post('/livewire/update', $handle)
+            ->middleware(
+                'web',
+                'universal',
+                // \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class, // or whatever tenancy middleware you use
+            );
+            FilePreviewController::$middleware = ['web', 'universal', InitializeTenancyByDomain::class];
+    });
     }
 }

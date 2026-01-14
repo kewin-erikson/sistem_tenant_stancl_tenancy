@@ -25,7 +25,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
-    return redirect()->route('tenant.welcome');
+    return redirect()->route('tenant.welcome')->middleware(['universal', InitializeTenancyByDomain::class]);
 
     });
     Route::view('welcome', 'welcome')->name('tenant.welcome');
