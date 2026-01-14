@@ -57,7 +57,7 @@
 
         <!-- Panel de Tenants -->
         <div class="bg-white shadow rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-4 text-blue-600 border-b pb-2">2. Registrar Nuevo Cliente</h2>
+            <h2 class="text-xl font-bold mb-4 text-blue-600 border-b pb-2">2. Registrar Nuevo Clientessssssssss</h2>
 
             <div class="mb-3">
                 <label class="block font-bold text-gray-700 text-sm">ID del Cliente (Slug)</label>
