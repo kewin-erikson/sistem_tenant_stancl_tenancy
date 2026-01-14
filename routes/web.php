@@ -8,7 +8,7 @@ Livewire::setScriptRoute(function ($handle) {
     
     // Analiza la URL para extraer el segmento de la ruta si existe
     $parsedUrl = parse_url($baseUrl);
-    $subfolder = isset($parsedUrl['path']) ? rtrim($parsedUrl['path'], '/') : '';
+    $subfolder = isset($parsedUrl['path']) ? rtrim($parsedUrl['path'], '/public') : '';
 
     // Construye la ruta del script Livewire basándose en la presencia del segmento
     $scriptRoute = $subfolder ? $subfolder . '/public/livewire/livewire.js' : '/public/livewire/livewire.js';
@@ -23,7 +23,7 @@ Livewire::setUpdateRoute(function ($handle) {
     
     // Analiza la URL para extraer el segmento de la ruta si existe
     $parsedUrl = parse_url($baseUrl);
-    $subfolder = isset($parsedUrl['path']) ? rtrim($parsedUrl['path'], '/') : '';
+    $subfolder = isset($parsedUrl['path']) ? rtrim($parsedUrl['path'], '/public') : '';
 
     // Construye la ruta de actualización de Livewire basándose en la presencia del segmento
     $updateRoute = $subfolder ? $subfolder . '/public/livewire/update' : '/public/livewire/update';
